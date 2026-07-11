@@ -195,3 +195,6 @@ voice-ai-detector/
 ```
 
 Principio de diseño: cada módulo tiene una única responsabilidad, de forma que agregar una nueva característica no requiere tocar `audio.py`, `routes.py` ni ningún otro módulo existente — solo se agrega el archivo nuevo en `app/features/`, se implementa su lógica de extracción y se registra en `app/analysis.py`.
+
+---
+Autor: Duavard Cisneros

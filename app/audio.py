@@ -1,6 +1,6 @@
 """
 audio.py
---------
+
 Responsabilidad única: conversión y normalización de audio.
 
 Flujo:
