@@ -1,15 +1,4 @@
-"""
-benford.py
-----------
-Responsabilidad única: extraer el primer dígito significativo de un vector
-numérico y construir su distribución observada (proporciones para dígitos 1-9),
-junto con la distribución teórica de Benford para comparar.
 
-Este módulo es agnóstico de qué característica se le pase (pitch, jitter,
-RMS, etc). Solo recibe un vector de números y devuelve distribuciones.
-
-No calcula MAD/χ²/KL/JS — eso vive en app/metrics/metrics.py.
-"""
 
 import numpy as np
 
