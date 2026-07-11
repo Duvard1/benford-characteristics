@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Editor/IDE configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Dynamic runtime audio directories (keep directory structure via .gitkeep)
+temp/*
+!temp/.gitkeep
+
+uploads/*
+!uploads/.gitkeep
+
+# Evaluation results (ignore JSON reports, keep directories)
+results/**/*.json
+results/*.json
