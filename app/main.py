@@ -1,20 +1,11 @@
-"""
-main.py
--------
-Responsabilidad única: inicializar la aplicación FastAPI y registrar routers.
-
-No debe contener lógica de negocio. Ejecutar con:
-    uvicorn app.main:app --reload
-"""
-
+# Inicializar la aplicacion
 from fastapi import FastAPI
-
 from app.routes import router
 
 app = FastAPI(
-    title="Voice AI Detector",
+    title="Benford Características Acústicas",
     description="Detección de voz generada por IA en llamadas telefónicas "
-                 "mediante características derivadas y Ley de Benford.",
+                 "mediante características acústicas derivadas y Ley de Benford.",
     version="0.1.0",
 )
 

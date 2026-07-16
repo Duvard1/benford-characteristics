@@ -1,34 +1,10 @@
-"""
-audio.py
-
-Responsabilidad única: conversión y normalización de audio.
-
-Flujo:
-    Archivo de entrada (AAC, MP3, WAV, M4A, OGG, OPUS, FLAC...)
-        ↓
-    Validación (extensión, tamaño)
-        ↓
-    Conversión a WAV PCM (vía pydub -> ffmpeg, invocado desde Python,
-    NO mediante comandos manuales de terminal)
-        ↓
-    Normalización: mono, 16kHz, 16-bit PCM
-        ↓
-    Lectura de muestras -> numpy array
-
-Este módulo NO calcula pitch, jitter, RMS, ni ninguna otra característica.
-Eso corresponde a los módulos dentro de app/features/ (fases posteriores).
-
-Requisito de sistema: ffmpeg debe estar instalado y accesible en el PATH,
-ya que pydub delega en él para decodificar formatos comprimidos (AAC, MP3, etc).
-"""
-
-from dataclasses import dataclass
+#Conversion y normalización del audio
+from dataclasses import dataclass # para crear objetos con atributos
 from pathlib import Path
-from typing import Union
-
+from typing import Union # para manejar tipos de datos
 import numpy as np
-import soundfile as sf
-from pydub import AudioSegment
+import soundfile as sf # para leer y escribir archivos de audio
+from pydub import AudioSegment # para manipular archivos de audio
 
 from app.config import (
     ALLOWED_EXTENSIONS,
@@ -41,7 +17,7 @@ from app.config import (
 from app.utils import eliminar_archivo_seguro, generar_nombre_unico
 
 
-# --- Excepciones específicas del módulo ---
+# Excepciones específicas del módulo 
 
 class AudioValidationError(Exception):
     """Se lanza cuando el archivo de entrada no cumple los requisitos básicos."""
@@ -95,7 +71,7 @@ def validar_archivo(filename: str, contenido: bytes) -> None:
         )
 
 
-# --- Conversión ---
+# Conversión 
 
 def _guardar_temporal(contenido: bytes, extension: str) -> Path:
     """Guarda los bytes recibidos como archivo temporal en disco."""
@@ -156,7 +132,7 @@ def leer_muestras(ruta_wav: Path) -> tuple[np.ndarray, int]:
     return samples, sample_rate
 
 
-# --- Punto de entrada del módulo ---
+# Punto de entrada del módulo 
 
 def procesar_audio(
     filename: str,

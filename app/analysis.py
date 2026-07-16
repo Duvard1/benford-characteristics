@@ -1,20 +1,5 @@
-"""
-analysis.py
------------
-Responsabilidad única: orquestar, para UNA señal de audio ya normalizada,
-el cálculo de las 6 características + Ley de Benford + métricas.
-
-Este módulo es el punto de unión entre app/features/*, app/benford/ y
-app/metrics/. Se extrajo de routes.py para que tanto el endpoint HTTP
-(una petición a la vez) como scripts/evaluar_dataset.py (muchos archivos
-en batch) usen exactamente la misma lógica de análisis — así no hay dos
-implementaciones que puedan desincronizarse.
-
-No sabe nada de HTTP, FastAPI, ni de cómo se subió el archivo.
-"""
-
+#Orquesta el calculo de las caracteristicas + benford + métricas
 import numpy as np
-
 from app.benford.benford import analizar_benford
 from app.features.energy import calcular_rms_por_frame, resumen_rms
 from app.features.jitter import calcular_jitter_ciclo_a_ciclo, resumen_jitter

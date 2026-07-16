@@ -1,13 +1,4 @@
-"""
-routes.py
----------
-Responsabilidad única: definir los endpoints de la API (FastAPI) y orquestar
-las llamadas a audio.py, app/features/*, app/benford/ y app/metrics/.
-
-Cada uno de esos módulos no sabe nada de los demás; routes.py es el único
-lugar que los conecta entre sí.
-"""
-
+# Deine endpoints y orquesta llamadas a demas funciones.
 from typing import Optional
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
@@ -35,9 +26,6 @@ def _benford_y_metricas(valores) -> dict:
     """
     Aplica Benford + las 4 métricas (MAD, chi2, KL, JS) a un vector de
     una característica (pitch, RMS, etc).
-
-    Si no hay suficientes valores válidos, devuelve un error legible
-    en vez de romper toda la petición.
     """
     try:
         benford = analizar_benford(valores)
@@ -64,7 +52,6 @@ def _bloque_feature(
 ) -> dict:
     """
     Arma el bloque de respuesta de UNA característica: 'resumen' y 'benford' siempre.
-    El array de valores crudos se omite para mantener la respuesta compacta y limpia.
     """
     return {
         "resumen": resumen,
@@ -83,13 +70,10 @@ async def benford_char(
     ),
 ):
     """
-    Recibe un archivo de audio, lo normaliza (mono, 16kHz, WAV PCM),
-    extrae las características (RMS, Pitch, ZCR, Silencios, Jitter, Shimmer),
+    Recibe un archivo de audio, lo normaliza,
+    extrae las características,
     aplica la Ley de Benford + métricas (MAD, chi2, KL, JS) a cada una
     y realiza una clasificación heurística.
-
-    Mediante el parámetro opcional `caracteristica` se puede filtrar la respuesta
-    para obtener solo la característica deseada (ej. `rms`, `pitch`, etc.).
     """
     contenido = await file.read()
 

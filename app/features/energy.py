@@ -9,11 +9,8 @@ valor de RMS para todo el audio.
 
 Flujo:
     samples (audio normalizado)
-        ↓
     segmentar_en_frames()
-        ↓
     RMS por frame
-        ↓
     vector [rms_1, rms_2, rms_3, ...]  (listo para Ley de Benford)
 """
 
@@ -29,7 +26,6 @@ def calcular_rms_por_frame(samples: np.ndarray, sample_rate: int) -> np.ndarray:
     Args:
         samples: señal de audio mono, float32 en [-1, 1]
         sample_rate: frecuencia de muestreo (Hz)
-
     Returns:
         Array 1D con el valor RMS de cada frame.
         RMS de un frame = sqrt(mean(frame^2))

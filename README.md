@@ -1,50 +1,40 @@
-# Voice AI Detector — MVP
+# Benford Características Acústicas
+Detección de voz generada por IA en llamadas telefónicas mediante características acústicas que intentan describir como se produce la voz usando la Ley de Benford.
 
-Detección de voz generada por IA en llamadas telefónicas mediante características derivadas y Ley de Benford.
 
-## Estado actual
-
-- ✅ **Fase 1: Estructura del proyecto y requerimientos** (`requirements.txt`, configuración base).
-- ✅ **Fase 2: Pipeline de Audio** (`app/audio.py` — carga, valida, convierte a WAV PCM mono 16kHz y normaliza).
-- ✅ **Fase 3: Extracción de Características Base (Features)**:
-  - ✅ `app/features/energy.py` — RMS por frame.
-  - ✅ `app/features/pitch.py` — Pitch / F0 por frame (autocorrelación).
-  - ✅ `app/features/zcr.py` — Zero Crossing Rate por frame.
-  - ✅ `app/features/silence.py` — Detección de pausas/silencios (duración en ms).
-  - ✅ `app/features/jitter.py` — Jitter (variación ciclo-a-ciclo del período de pitch, aproximado por frame).
-  - ✅ `app/features/shimmer.py` — Shimmer (variación ciclo-a-ciclo de amplitud/RMS, aproximado por frame).
-- ✅ **Fase 3 (Benford & Métricas)**:
-  - ✅ `app/benford/benford.py` — Extracción del primer dígito significativo y distribución de Benford.
-  - ✅ `app/metrics/metrics.py` — Métricas de divergencia/distancia (MAD, χ², KL, JS).
-  - ✅ `app/analysis.py` — Orquestador central para análisis unificado.
-- ✅ **Fase 4 (Parcial — Infraestructura de Evaluación)**:
-  - ✅ Script de evaluación en lote (`scripts/evaluar_dataset.py`) para procesar conjuntos de audios reales e IA.
-
-### Nota sobre jitter y shimmer
-Este MVP calcula jitter y shimmer como variación **frame a frame** (25ms), no ciclo-a-ciclo glótico real como haría Praat. Es una aproximación suficiente para el MVP y sigue siendo comparable entre voz real e IA, pero si se necesita jitter/shimmer clínico habría que implementar detección de picos pitch-síncrona (marcado de cada ciclo glótico individual). Ver docstrings de `jitter.py` y `shimmer.py` para más detalle.
-
-## Requisitos del sistema
+## Requisitos Previos
 
 Este proyecto necesita **ffmpeg** instalado en el sistema (no en Python), porque `pydub` lo usa por debajo para decodificar formatos comprimidos (AAC, MP3, OGG, etc). La conversión se hace siempre desde Python, nunca con comandos manuales de terminal por parte del usuario.
 
-Instalación de ffmpeg:
+
+Verificar que esté instalado:
 
 ```bash
-# Ubuntu / Debian
-sudo apt-get install ffmpeg
-
-# macOS (Homebrew)
-brew install ffmpeg
-
-# Windows
-# Descargar desde https://ffmpeg.org/download.html y agregar al PATH
+ffmpeg -version
 ```
+
+Si no lo tienes:
+- Ubuntu/Debian: `sudo apt install ffmpeg`
+- macOS: `brew install ffmpeg`
+- Windows: descargar desde https://ffmpeg.org/download.html y agregarlo al PATH
+
+---
+
+## Instalación
+
+```bash
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+---
 
 ## Instalación del proyecto
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
+.\venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -61,16 +51,6 @@ Documentación interactiva automática: `http://127.0.0.1:8000/docs`.
 
 El endpoint `/benford-char` recibe un archivo de audio, calcula sus características y realiza una **clasificación heurística** para estimar si la voz es **REAL** o generada por **IA** basándose en la métrica MAD del RMS (con un umbral definido en `config.py`).
 
-Opcionalmente, se puede filtrar la respuesta mediante el parámetro de consulta `caracteristica`. Los valores contemplados y sus descripciones son:
-
-- `rms`: Root Mean Square. Mide la energía promedio de la señal de audio frame a frame.
-- `pitch`: Frecuencia fundamental (F0). Mide la altura tonal de la voz en los frames sonoros.
-- `zcr`: Zero Crossing Rate. Mide la tasa de cruces por cero, útil para analizar componentes ruidosas o consonantes sordas.
-- `silencios`: Mide la duración (en milisegundos) y distribución de las pausas o silencios detectados en el habla.
-- `jitter`: Variación a corto plazo de la frecuencia fundamental (período del pitch) frame a frame.
-- `shimmer`: Variación a corto plazo de la amplitud (RMS) del pitch frame a frame.
-- `todas` (o si se omite / no se especifica): Retorna la lista completa de características analizadas.
-
 ```bash
 # Obtener todas las características
 curl -X POST "http://127.0.0.1:8000/benford-char" \
@@ -80,6 +60,16 @@ curl -X POST "http://127.0.0.1:8000/benford-char" \
 curl -X POST "http://127.0.0.1:8000/benford-char?caracteristica=rms" \
   -F "file=@ruta/a/tu/audio.aac"
 ```
+
+Opcionalmente, se puede filtrar la respuesta mediante el parámetro de consulta `caracteristica`. Los valores contemplados y sus descripciones son:
+
+- `rms`: Root Mean Square. Mide qué tan fuerte o qué tan alto suena la voz.
+- `pitch`: Frecuencia fundamental (F0). Mide qué tan grave o aguda es la voz.
+- `zcr`: Zero Crossing Rate. Cuenta cuántas veces la señal cambia de positiva a negativa.
+- `silencios`: Duración (en mlseg) de los momentos donde no hay voz.
+- `jitter`: Mide qué tanto cambia el Pitch de un instante al siguiente.
+- `shimmer`: Mide qué tanto cambia el volumen entre un instante y otro.
+- `todas`: Si no se especifica una caracteristisca se retorna la lista completa de características analizadas.
 
 Respuesta esperada (ejemplo, filtrado por `rms`):
 
@@ -194,7 +184,7 @@ voice-ai-detector/
 └── requirements.txt        # Librerías y dependencias
 ```
 
-Principio de diseño: cada módulo tiene una única responsabilidad, de forma que agregar una nueva característica no requiere tocar `audio.py`, `routes.py` ni ningún otro módulo existente — solo se agrega el archivo nuevo en `app/features/`, se implementa su lógica de extracción y se registra en `app/analysis.py`.
+### Nota sobre jitter y shimmer
+Este MVP calcula jitter y shimmer como variación **frame a frame** (25ms), no ciclo-a-ciclo glótico real como haría Praat. Es una aproximación suficiente para el MVP y sigue siendo comparable entre voz real e IA, pero si se necesita jitter/shimmer clínico habría que implementar detección de picos pitch-síncrona (marcado de cada ciclo glótico individual). Ver docstrings de `jitter.py` y `shimmer.py` para más detalle.
 
----
-Autor: Duavard Cisneros
+Principio de diseño: cada módulo tiene una única responsabilidad, de forma que agregar una nueva característica no requiere tocar `audio.py`, `routes.py` ni ningún otro módulo existente — solo se agrega el archivo nuevo en `app/features/`, se implementa su lógica de extracción y se registra en `app/analysis.py`.

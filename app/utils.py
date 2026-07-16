@@ -1,12 +1,4 @@
-"""
-utils.py
---------
-Funciones auxiliares genéricas, sin lógica de negocio propia.
-
-Responsabilidad única: utilidades reutilizables por otros módulos
-(generación de nombres únicos, limpieza de archivos temporales, etc).
-"""
-
+# utilidades reeutilisables 
 import uuid
 from pathlib import Path
 
@@ -28,7 +20,6 @@ def generar_nombre_unico(extension: str) -> str:
 def eliminar_archivo_seguro(path: Path) -> None:
     """
     Elimina un archivo si existe, sin lanzar excepción si falla.
-    Útil para limpiar temporales tras procesar una petición.
     """
     try:
         if path.exists():
